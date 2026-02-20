@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+    <title>💖 Eternal Love - Ultra Large Cubes</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <style>
+        /* CORE OPTIMIZATION */
+        *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;}
+        body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#ff1493,#ff69b4,#fecfef,#ffd700);background-size:400% 400%;animation:bgShift 12s infinite;overflow:hidden;height:100vh;}
+        @keyframes bgShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+
+        /* 3-SECOND INTRO */
+        .magic-burst{position:fixed;inset:0;background:radial-gradient(circle,#ff1493,#8a2be2);z-index:300;display:flex;flex-direction:column;justify-content:center;align-items:center;transition:0.8s ease-out;}
+        .burst-title{font-family:'Dancing Script',cursive;font-size:3.5rem;color:#fff;text-shadow:0 0 20px #fff;animation:pulse 1s infinite;}
+        @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+
+        /* MAIN STAGE */
+        .love-stage{position:fixed;inset:0;opacity:0;transform:scale(0.8);transition:all 1s cubic-bezier(0.175,0.885,0.32,1.275);z-index:100;}
+        .love-stage.show{opacity:1;transform:scale(1);}
+
+        /* CENTER HEART */
+        .center-love {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 140px;
+            height: 140px;
+            z-index: 150;
+        }
+        .love-heart {
+            position: relative;
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #ff1493, #ffd700);
+            transform: rotate(45deg);
+            margin: 35px auto;
+            box-shadow: 0 0 50px rgba(255, 20, 147, 0.7);
+            animation: heartBeat 1.5s infinite ease-in-out;
+        }
+        .love-heart::before, .love-heart::after {
+            content: "";
+            position: absolute;
+            width: 70px;
+            height: 70px;
+            background: inherit;
+            border-radius: 50%;
+        }
+        .love-heart::before { top: -35px; left: 0; }
+        .love-heart::after { left: -35px; top: 0; }
+
+        .love-text {
+            position: absolute;
+            top: 45%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            text-align: center;
+            font-family: 'Dancing Script', cursive;
+            font-size: 1.6rem;
+            color: white !important;
+            font-weight: bold;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
+            z-index: 160;
+        }
+
+        /* --- CUBE SIZE CONTROL --- */
+        :root {
+            --cube-size: 180px; /* CHANGE THIS NUMBER TO INCREASE SIZE */
+            --cube-depth: 90px; /* THIS MUST ALWAYS BE HALF OF THE SIZE ABOVE */
+        }
+
+        .cube-orbit {
+            position: absolute;
+            width: var(--cube-size);
+            height: var(--cube-size);
+            perspective: 1500px;
+        }
+        .corner-cube {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            animation: rotateStep 14s infinite ease-in-out;
+        }
+        .cube-face {
+            position: absolute;
+            width: var(--cube-size);
+            height: var(--cube-size);
+            border: 4px solid #fff;
+            background-size: cover;
+            background-position: center;
+            box-shadow: 0 0 25px rgba(255,20,147,0.6);
+            border-radius: 12px;
+        }
+        
+        /* Side Mapping using the Depth Variable */
+        .face-f { transform: rotateY(0deg) translateZ(var(--cube-depth)); }
+        .face-b { transform: rotateY(180deg) translateZ(var(--cube-depth)); }
+        .face-r { transform: rotateY(90deg) translateZ(var(--cube-depth)); }
+        .face-l { transform: rotateY(-90deg) translateZ(var(--cube-depth)); }
+        .face-t { transform: rotateX(90deg) translateZ(var(--cube-depth)); }
+        .face-bt{ transform: rotateX(-90deg) translateZ(var(--cube-depth)); }
+
+        @keyframes rotateStep {
+            0%, 15% { transform: rotateY(0deg); }
+            20%, 35% { transform: rotateY(90deg); }
+            40%, 55% { transform: rotateY(180deg); }
+            60%, 75% { transform: rotateY(270deg); }
+            80%, 95% { transform: rotateX(90deg); } 
+            100% { transform: rotateY(360deg); }
+        }
+
+        /* Position adjusted for larger cubes (Lines 130-134) */
+        .c1{top:5%; left:3%;} 
+        .c2{top:5%; right:3%;} 
+        .c3{bottom:5%; left:3%;} 
+        .c4{bottom:5%; right:3%;}
+
+        /* AUTO-SCALING FOR SMALLER PHONES */
+        @media (max-width: 400px) {
+            :root {
+                --cube-size: 150px;
+                --cube-depth: 75px;
+            }
+        }
+
+        /* POPUP */
+        .love-popup{position:fixed;inset:0;background:rgba(255,20,147,0.96);backdrop-filter:blur(15px);display:none;justify-content:center;align-items:center;z-index:400;padding:20px;}
+        .love-popup.show{display:flex;}
+        .popup-content{background:rgba(255,255,255,0.15);padding:40px 20px;border-radius:40px;border:2px solid #fff;text-align:center;width:100%;max-width:400px;}
+        #passwordInput{width:90%;padding:15px;border-radius:20px;border:none;font-size:1.2rem;text-align:center;margin:20px 0;background:#fff;}
+        .unlock-btn{display:none;background:#ffd700;color:#ff1493;padding:15px 30px;border-radius:30px;text-decoration:none;font-weight:700;font-size:1.2rem;box-shadow:0 10px 20px rgba(0,0,0,0.2);}
+
+        #particles-canvas{position:fixed;top:0;left:0;pointer-events:none;z-index:50;}
+    </style>
+</head>
+<body>
+    <canvas id="particles-canvas"></canvas>
+
+    <div class="magic-burst" id="magicBurst">
+        <h1 class="burst-title">💖MY LOVE</h1>
+        <p style="color:#fff;font-weight:700">Forever My Princess 👑</p>
+    </div>
+
+    <div class="love-stage" id="loveStage">
+        <div class="cube-orbit c1"><div class="corner-cube" id="cube1"></div></div>
+        <div class="cube-orbit c2"><div class="corner-cube" id="cube2"></div></div>
+        <div class="cube-orbit c3"><div class="corner-cube" id="cube3"></div></div>
+        <div class="cube-orbit c4"><div class="corner-cube" id="cube4"></div></div>
+
+        <div class="center-love">
+            <div class="love-heart"></div>
+            <div class="love-text">My Love 💖</div>
+        </div>
+    </div>
+
+    <div class="love-popup" id="lovePopup">
+        <div class="popup-content">
+            <h2 style="color:#fff;font-family:'Dancing Script';font-size:2rem;">Unlock Memories</h2>
+            <input type="password" id="passwordInput" placeholder="Secret Code" maxlength="8">
+            <p id="passwordMsg" style="color:#fff;margin-bottom:20px;"></p>
+            <a href="page4.html" class="unlock-btn" id="unlockBtn">✨ Open Love Story ✨</a>
+        </div>
+    </div>
+
+    <script>
+        const myImages = [
+            'assets/vaishuu1.jpg', 'assets/vaishuu2.jpg', 'assets/vaishuu3.jpg', 
+            'assets/vaishuu4.jpg', 'assets/vaishuu5.jpg', 'assets/vaishuu6.jpg'
+        ];
+
+        function createCubeFaces(cubeId, cubeOffset) {
+            const cube = document.getElementById(cubeId);
+            const faces = ['f', 'b', 'r', 'l', 't', 'bt'];
+            faces.forEach((f, i) => {
+                const div = document.createElement('div');
+                div.className = `cube-face face-${f}`;
+                let imgIndex = (i + cubeOffset) % myImages.length;
+                div.style.backgroundImage = `url('${myImages[imgIndex]}')`;
+                cube.appendChild(div);
+            });
+        }
+
+        window.onload = () => {
+            ['cube1', 'cube2', 'cube3', 'cube4'].forEach((id, idx) => createCubeFaces(id, idx));
+            setTimeout(() => {
+                document.getElementById('magicBurst').style.opacity = '0';
+                document.getElementById('loveStage').classList.add('show');
+                setTimeout(() => document.getElementById('magicBurst').style.display = 'none', 800);
+            }, 3000);
+            initParticles();
+        };
+
+        let lastTap = 0;
+        document.body.addEventListener('touchend', e => {
+            let now = Date.now();
+            if (now - lastTap < 350) {
+                document.getElementById('lovePopup').classList.add('show');
+                confetti({particleCount: 150, spread: 70, origin: { y: 0.6 }});
+            }
+            lastTap = now;
+        });
+
+        document.getElementById('passwordInput').addEventListener('input', function() {
+            const msg = document.getElementById('passwordMsg');
+            const btn = document.getElementById('unlockBtn');
+            if(this.value === 'KK212007') {
+                msg.innerText = "✅ Correct! I Love You!";
+                btn.style.display = "inline-block";
+                this.style.display = "none";
+                confetti({particleCount: 200, colors: ['#ff1493', '#ffd700']});
+            } else {
+                msg.innerText = "❌ Keep guessing... 💕";
+            }
+        });
+
+        function initParticles() {
+            const canvas = document.getElementById('particles-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            let parts = [];
+            function draw() {
+                ctx.clearRect(0,0,canvas.width,canvas.height);
+                if(parts.length < 20) parts.push({x:Math.random()*canvas.width, y:canvas.height+10, s:Math.random()*2+2, v:Math.random()*1.5+0.5});
+                parts.forEach((p, i) => {
+                    p.y -= p.v;
+                    ctx.fillStyle = "rgba(255,255,255,0.4)";
+                    ctx.beginPath(); ctx.arc(p.x, p.y, p.s, 0, Math.PI*2); ctx.fill();
+                    if(p.y < -10) parts.splice(i, 1);
+                });
+                requestAnimationFrame(draw);
+            }
+            draw();
+        }
+    </script>
+</body>
+</html>

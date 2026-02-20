@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+    <title>🎁 Birthday Gift</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <style>
+        /* BASE STYLING */
+        *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+        body{
+            font-family:'Poppins',sans-serif;
+            background: linear-gradient(135deg,#ff9a9e 0%,#fecfef 50%,#ffdde1 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            min-height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        @keyframes gradientShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+
+        #particles-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:1;pointer-events:none;}
+
+        .container {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        h2 {
+            font-family: 'Dancing Script', cursive;
+            font-size: clamp(2rem, 10vw, 4rem);
+            color: #ff1493;
+            text-align: center;
+            margin-bottom: 20px;
+            transition: opacity 0.5s ease;
+        }
+
+        /* GIFT BOX ANIMATION */
+        .gift-container {
+            position: relative;
+            width: 280px;
+            height: 280px;
+            cursor: pointer;
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .gift-container.hidden {
+            opacity: 0;
+            transform: scale(0.5) translateY(-100px);
+            pointer-events: none;
+        }
+
+        .box-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+        }
+
+        .lid {
+            width: 100%;
+            height: 40px;
+            background: #ff4d91;
+            position: absolute;
+            top: 0;
+            z-index: 5;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .box-body {
+            width: 90%;
+            height: 200px;
+            background: #ff75a0;
+            position: absolute;
+            bottom: 0;
+            left: 5%;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .ribbon-v {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 100%;
+            background: #ffd700;
+            z-index: 4;
+        }
+
+        .bow {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 40px;
+            background: #ffd700;
+            border-radius: 50px;
+            z-index: 6;
+        }
+
+        /* BOX OPEN STATE */
+        .gift-container.open .lid {
+            transform: translateY(-100px) rotate(-15deg);
+            opacity: 0;
+        }
+
+        /* MESSAGE SECTION - SWAPS WITH BOX */
+        .message-section {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.5);
+            opacity: 0;
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+            transition: all 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .message-section.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+            pointer-events: auto;
+        }
+
+        .love-message {
+            font-family: 'Dancing Script', cursive;
+            font-size: clamp(1.8rem, 8vw, 3rem);
+            color: #ff1493;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 10px rgba(255,255,255,0.8);
+            line-height: 1.4;
+        }
+
+        .mega-btn {
+            padding: 20px 40px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            background: linear-gradient(45deg,#ff1493,#8a2be2);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            box-shadow: 0 10px 20px rgba(255,20,147,0.3);
+            transition: transform 0.3s;
+        }
+
+        .mega-btn:active { transform: scale(0.9); }
+
+        /* FLOATING HEART EFFECT */
+        .heart-float {
+            position: absolute;
+            pointer-events: none;
+            animation: floatUp 3s linear forwards;
+            font-size: 2rem;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) scale(1) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-500px) scale(1.5) rotate(45deg); opacity: 0; }
+        }
+
+        .instruction {
+            margin-top: 15px;
+            color: #d13076;
+            font-weight: 600;
+            animation: blink 2s infinite;
+        }
+        @keyframes blink { 50% { opacity: 0.5; } }
+    </style>
+</head>
+<body>
+    <canvas id="particles-canvas"></canvas>
+
+    <div class="container">
+        <h2 id="title">For My Favorite Person... 💖</h2>
+        
+        <div class="gift-container" id="giftBox">
+            <div class="box-wrapper">
+                <div class="bow"></div>
+                <div class="lid"></div>
+                <div class="ribbon-v"></div>
+                <div class="box-body"></div>
+            </div>
+            <p class="instruction" id="tapText">Tap to open your gift!</p>
+        </div>
+
+        <div class="message-section" id="messageSection">
+            <div class="love-message">
+                You're my dream come true! 🌟💖<br>
+                I love you more than words! ❤️<br>
+                Happy Birthday Forever Love! 👑✨
+            </div>
+            <a href="page3.html" class="mega-btn">Next Surprise →</a>
+        </div>
+    </div>
+
+    <script>
+        const giftBox = document.getElementById('giftBox');
+        const messageSection = document.getElementById('messageSection');
+        const title = document.getElementById('title');
+        const tapText = document.getElementById('tapText');
+
+        function createHeart() {
+            const heart = document.createElement('div');
+            heart.classList.add('heart-float');
+            heart.innerHTML = ['❤️','💖','💝','🌸','✨'][Math.floor(Math.random()*5)];
+            heart.style.left = Math.random() * 100 + "vw";
+            heart.style.top = "80vh";
+            heart.style.fontSize = (Math.random() * 20 + 20) + "px";
+            document.body.appendChild(heart);
+            setTimeout(() => heart.remove(), 3000);
+        }
+
+        function openGift() {
+            // 1. Animate opening
+            giftBox.classList.add('open');
+            tapText.style.opacity = '0';
+            
+            // 2. Explosion effect
+            confetti({
+                particleCount: 150,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#ff1493', '#ffd700', '#ffffff']
+            });
+
+            // 3. Float hearts
+            for(let i=0; i<15; i++) {
+                setTimeout(createHeart, i * 100);
+            }
+
+            // 4. Swap box for message
+            setTimeout(() => {
+                giftBox.classList.add('hidden');
+                title.style.opacity = '0';
+                
+                setTimeout(() => {
+                    giftBox.style.display = 'none';
+                    messageSection.classList.add('show');
+                    // Continuous subtle hearts after opening
+                    setInterval(createHeart, 500);
+                }, 600);
+            }, 800);
+        }
+
+        giftBox.addEventListener('click', openGift);
+
+        // Particle System Background
+        const canvas = document.getElementById('particles-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 3 + 1;
+                this.speed = Math.random() * 1 + 0.5;
+            }
+            update() {
+                this.y -= this.speed;
+                if (this.y < 0) this.y = canvas.height;
+            }
+            draw() {
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        for (let i = 0; i < 50; i++) particles.push(new Particle());
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => { p.update(); p.draw(); });
+            requestAnimationFrame(animate);
+        }
+        animate();
+    </script>
+</body>
+</html>
